@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider, connect } from 'react-redux'
-import store from './store'
-import App from './app';
+import store from './src/store'
+import App from './src/app';
 
 ReactDOM.render(
   <Provider store={store}>
@@ -10,4 +10,3 @@ ReactDOM.render(
   </Provider>,
   document.querySelector('.container')
 );
-

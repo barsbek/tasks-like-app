@@ -1,14 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-const Todos = ({ todos, onRemove }) => (
+const Todos = ({ todos, onRemove, onUpdate }) => (
   <ul>
     {todos.map((t, index) =>
       <li
         key={index}
         onClick={() => onRemove(t)}
         style={{color: t.saved ? 'green' : 'red' }}>
-        {t.text}
+        {t.id} {t.text}
+
+        <a href="#"
+          style={{coloe: 'blue'}}
+          onClick={e => {e.preventDefault(); onUpdate(t)}}>
+          U
+        </a>
       </li>
     )}
   </ul>
@@ -19,36 +25,56 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      text: ''
+      text: '',
+      id: 0
     }
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleUpdateClick = this.handleUpdateClick.bind(this);
   }
 
   componentDidMount() {
     this.props.loadAsync();
-    console.log(this.props);
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    this.props.addAsync({ text: this.state.text });
-    this.setState({ text: '' });
+    const { id, text } = this.state;
+    if(id) {
+      this.props.updateAsync({ id, text });
+    } else {
+      this.props.addAsync({ text: this.state.text });
+    }
+
+    this.setState({ text: '', id: null });
   }
 
   handleChange(e) {
-    this.setState({ text: e.target.value });
+    const text = e.target.value;
+    const { id } = this.state;
+    if(id) {
+      this.props.update({ id, text });
+    }
+
+    this.setState({ text });
+  }
+
+  handleUpdateClick(t) {
+    const { id, text } = this.props.todos[t.id];
+    this.setState({ text, id });
   }
 
   render() {
+    const todosArray = Object.values(this.props.todos);
     return (
       <div>
         {this.props.loading ?
           '...loading' : 
           <Todos
-            todos={this.props.todos}
+            todos={todosArray}
             onRemove={this.props.remove}
+            onUpdate={this.handleUpdateClick}
           />
         }
         <form onSubmit={this.handleSubmit}>
@@ -64,7 +90,7 @@ class App extends React.Component {
 }
 
 const mapState = state => ({ 
-  todos: Object.values(state.todos.list),
+  todos: state.todos.list,
   loading: state.todos.loading
 });
 
