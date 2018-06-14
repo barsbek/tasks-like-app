@@ -1,4 +1,5 @@
-import client from '../client';
+import client from '../client'
+import uuid from 'uuidv4'
 
 export default {
   state: {
@@ -12,7 +13,18 @@ export default {
         ...state,
         list: {
           ...state.list,
-          [payload.index]: payload
+          [payload.localID]: { ...payload, saved: false }
+        }
+      }
+    },
+
+    addSaved(state, payload) {
+      let {[payload.localID]: omit, ...newList} = state.list;
+      return {
+        ...state,
+        list: {
+          ...newList,
+          [payload.id]: { ...payload, saved: true }
         }
       }
     },
@@ -25,7 +37,10 @@ export default {
 
     load(state, payload) {
       let list = {...state.list};
-      payload.forEach(t => list[t.id] = t);
+      payload.forEach(t => {
+        t.saved = true;
+        list[t.id] = t;
+      });
       return {...state, list, loading: false };
     },
 
@@ -36,10 +51,15 @@ export default {
 
   effects: dispatch => ({
     async loadAsync(state) {
-      dispatch.todos.isLoading();
       const res = await client.get('/todos');
       dispatch.todos.load(res.data);
+    },
+
+    async addAsync(payload, state) {
+      const localID = uuid();
+      dispatch.todos.add({ ...payload, localID });
+      const res = await client.post('/todos', payload);
+      dispatch.todos.addSaved({ ...res.data, localID });
     }
   })
 }
-

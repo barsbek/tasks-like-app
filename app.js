@@ -4,14 +4,15 @@ import { connect } from 'react-redux';
 const Todos = ({ todos, onRemove }) => (
   <ul>
     {todos.map((t, index) =>
-      <li key={index} onClick={() => onRemove(t)}>
+      <li
+        key={index}
+        onClick={() => onRemove(t)}
+        style={{color: t.saved ? 'green' : 'red' }}>
         {t.text}
       </li>
     )}
   </ul>
 );
-
-let id = 0;
 
 class App extends React.Component {
   constructor(props) {
@@ -27,15 +28,13 @@ class App extends React.Component {
 
   componentDidMount() {
     this.props.loadAsync();
+    console.log(this.props);
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    id++;
-    const index = id;
-    this.props.add({ index, text: this.state.text });
+    this.props.addAsync({ text: this.state.text });
     this.setState({ text: '' });
-    e.target.reset();
   }
 
   handleChange(e) {
