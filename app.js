@@ -25,6 +25,10 @@ class App extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
+  componentDidMount() {
+    this.props.loadAsync();
+  }
+
   handleSubmit(e) {
     e.preventDefault();
     id++;
@@ -41,10 +45,13 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Todos
-          todos={this.props.todos}
-          onRemove={this.props.remove}
-        />
+        {this.props.loading ?
+          '...loading' : 
+          <Todos
+            todos={this.props.todos}
+            onRemove={this.props.remove}
+          />
+        }
         <form onSubmit={this.handleSubmit}>
           <input
             value={this.state.text}
@@ -58,7 +65,8 @@ class App extends React.Component {
 }
 
 const mapState = state => ({ 
-  todos: Object.values(state.todos)
+  todos: Object.values(state.todos.list),
+  loading: state.todos.loading
 });
 
 const mapDispatch = ({ todos }) => todos;
