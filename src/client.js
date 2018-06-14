@@ -4,5 +4,5 @@ const baseURL = 'http://localhost:9292';
 
 export default axios.create({
   baseURL,
-  timeout: 5000
+  timeout: 10000
 });
