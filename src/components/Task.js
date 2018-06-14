@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 class Task extends Component {
   constructor(props) {
@@ -10,12 +11,19 @@ class Task extends Component {
     }
 
     this.handleChange = this.handleChange.bind(this);
+    this.timer = null;
   }
 
   handleChange(e) {
-    this.setState({
-      text: e.target.value
-    });
+    const text = e.target.value;
+    this.setState({ text });
+
+    const { id, updateAsync } = this.props;
+
+    clearTimeout(this.timer);
+    this.timer = setTimeout(
+      () => updateAsync({ id, text }),
+    300);
   }
 
   render() {
@@ -35,10 +43,16 @@ class Task extends Component {
   }
 }
 
+const mapDispatch = ({ list: { updateAsync }}) => ({
+  updateAsync
+})
+
 Task.propTypes = {
   id: PropTypes.number,
   text: PropTypes.string,
-  saved: PropTypes.bool
+  saved: PropTypes.bool,
+
+  updateAsync: PropTypes.func
 }
 
-export default Task;
+export default connect(null, mapDispatch)(Task);
