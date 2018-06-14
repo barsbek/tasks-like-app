@@ -7,18 +7,20 @@ class Task extends Component {
     super(props);
 
     this.state = {
-      text: props.text
+      text: props.task.text
     }
 
-    this.handleChange = this.handleChange.bind(this);
     this.timer = null;
+
+    this.handleChange = this.handleChange.bind(this);
+    // this.handleRemove = this.handleRemove.bind(this);
   }
 
   handleChange(e) {
     const text = e.target.value;
     this.setState({ text });
 
-    const { id, updateAsync } = this.props;
+    const { task: { id }, updateAsync } = this.props;
 
     clearTimeout(this.timer);
     this.timer = setTimeout(
@@ -28,7 +30,8 @@ class Task extends Component {
 
   render() {
     const { text } = this.state;
-    const { id, saved } = this.props;
+    const { task, removeAsync } = this.props;
+    const { id, saved } = task;
 
     return (
       <li style={{color: saved ? 'green' : 'red' }}>
@@ -38,19 +41,28 @@ class Task extends Component {
           value={text}
           onChange={this.handleChange}
         />
+        <a
+          href="#"
+          onClick={() => removeAsync(task)}
+          style={{ color: 'red' }}>
+          x
+        </a>
       </li>
     )
   }
 }
 
-const mapDispatch = ({ list: { updateAsync }}) => ({
-  updateAsync
+const mapDispatch = ({ list: { updateAsync, removeAsync }}) => ({
+  updateAsync,
+  removeAsync
 })
 
 Task.propTypes = {
-  id: PropTypes.number,
-  text: PropTypes.string,
-  saved: PropTypes.bool,
+  task: PropTypes.shape({
+    id: PropTypes.number,
+    text: PropTypes.string,
+    saved: PropTypes.bool
+  }),
 
   updateAsync: PropTypes.func
 }

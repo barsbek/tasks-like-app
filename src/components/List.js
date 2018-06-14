@@ -7,7 +7,7 @@ import Task from './Task';
 const List = ({ tasks }) => (
   <ul>
     {tasks.map((t, index) =>
-      <Task key={index} {...t}/>
+      <Task key={index} task={t} />
     )}
   </ul>
 );

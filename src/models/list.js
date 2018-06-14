@@ -19,20 +19,20 @@ export default {
     },
 
     addSaved(state, payload) {
-      let {[payload.localID]: omit, ...newtasks} = state.tasks;
+      let {[payload.localID]: omit, ...newTasks} = state.tasks;
       return {
         ...state,
         tasks: {
-          ...newtasks,
+          ...newTasks,
           [payload.id]: { ...payload, saved: true }
         }
       }
     },
 
     remove(state, payload) {
-      let newState = {...state};
-      delete newState[payload.index];
-      return newState;
+      let newTasks = { ...state.tasks };
+      delete newTasks[payload.id];
+      return { ...state, tasks: newTasks };
     },
 
     load(state, payload) {
@@ -75,6 +75,16 @@ export default {
     async updateAsync(payload, state) {
       const res = await client.put(`/todos/${payload.id}`, payload);
       dispatch.list.update({ ...res.data, saved: true });
+    },
+
+    async removeAsync(payload, state) {
+      dispatch.list.remove(payload);
+      try {
+        await client.delete(`/todos/${payload.id}`);
+      } catch(e) {
+        alert(`couldn't remove task`);
+        dispatch.list.addSaved(payload);
+      }
     }
   })
 }
