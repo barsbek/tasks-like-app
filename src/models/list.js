@@ -68,7 +68,7 @@ export default {
       const { data: savedTask} = await client.post('/todos', payload);
       // get current state to check if changes happened
       const { list: { tasks }} = store.getState();
-      // update sate with saved task info
+      // update state with saved task info
       dispatch.list.addSaved({ ...savedTask, localID });
 
       const updatedTask = tasks[localID];
