@@ -1,5 +1,6 @@
 import client from '../client';
 import uuid from 'uuidv4';
+import store from '../store';
 
 export default {
   state: {
@@ -61,16 +62,27 @@ export default {
 
     async addAsync(payload, state) {
       const localID = uuid();
+      // add locally
       dispatch.list.add({ ...payload, localID });
-      const res = await client.post('/todos', payload);
-      dispatch.list.addSaved({ ...res.data, localID });
+      // save
+      const { data: savedTask} = await client.post('/todos', payload);
+      // get current state to check if changes happened
+      const { list: { tasks }} = store.getState();
+      // update sate with saved task info
+      dispatch.list.addSaved({ ...savedTask, localID });
+
+      const updatedTask = tasks[localID];
+      // update remotely if changes have happened
+      if(updatedTask.text !== savedTask.text) {
+        await dispatch.list.updateAsync({ ...updatedTask, id: savedTask.id });
+      }
     },
 
     async updateAsync(payload, state) {
-      await dispatch.list.update({ ...payload, saved: false });
+      dispatch.list.update({ ...payload, saved: false });
       if(payload.id) {
         const res = await client.put(`/todos/${payload.id}`, payload);
-        await dispatch.list.update({ ...res.data, saved: true });
+        dispatch.list.update({ ...res.data, saved: true });
       }
     },
 
