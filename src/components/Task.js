@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
+
+import './Task.sass';
 
 class Task extends Component {
   constructor(props) {
@@ -33,20 +36,25 @@ class Task extends Component {
     const { id, saved } = task;
 
     return (
-      <li style={{color: saved ? 'green' : 'red' }}>
+      <div className={classNames('Task', { 'Task_saved': saved })}>
+        <div className='Task__done'>
+          <input type="checkbox" id={`task-checkbox-${id}`} />
+          <label htmlFor={`task-checkbox-${id}`}/>
+        </div>
         {id}
         <input
+          className='Task__text'
           type="text"
           value={text}
           onChange={this.handleChange}
         />
         <a
+          className='Task__remove'
           href="#"
-          onClick={() => removeAsync(task)}
-          style={{ color: 'red' }}>
+          onClick={() => removeAsync(task)}>
           x
         </a>
-      </li>
+      </div>
     )
   }
 }

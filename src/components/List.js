@@ -5,11 +5,11 @@ import { connect } from 'react-redux';
 import Task from './Task';
 
 const List = ({ tasks }) => (
-  <ul>
+  <div>
     {tasks.map((t, index) =>
       <Task key={index} task={t} />
     )}
-  </ul>
+  </div>
 );
 
 const mapState = ({ list: { tasks }}) => ({

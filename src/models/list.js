@@ -32,6 +32,7 @@ export default {
       const id = payload.id ? payload.id : payload.localID;
 
       let newTasks = { ...state.tasks };
+      console.log(id, newTasks);
       delete newTasks[id];
       return { ...state, tasks: newTasks };
     },
