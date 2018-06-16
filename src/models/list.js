@@ -21,18 +21,18 @@ export default {
 
     addSaved(state, payload) {
       let {[payload.localID]: omit, ...newTasks} = state.tasks;
-      return {
+      
+      return !omit ? state : {
         ...state,
-        tasks: {
-          ...newTasks,
-          [payload.id]: { ...payload, saved: true }
-        }
+        tasks: { ...newTasks, [payload.id]: { ...payload, saved: true }}
       }
     },
 
     remove(state, payload) {
+      const id = payload.id ? payload.id : payload.localID;
+
       let newTasks = { ...state.tasks };
-      delete newTasks[payload.id];
+      delete newTasks[id];
       return { ...state, tasks: newTasks };
     },
 
@@ -72,6 +72,10 @@ export default {
       dispatch.list.addSaved({ ...savedTask, localID });
 
       const updatedTask = tasks[localID];
+      // remove from remote if task was deleted locally
+      if(!updatedTask) {
+        return await dispatch.list.removeAsync(savedTask);
+      }
       // update remotely if changes have happened
       if(updatedTask.text !== savedTask.text) {
         await dispatch.list.updateAsync({ ...updatedTask, id: savedTask.id });
@@ -88,11 +92,14 @@ export default {
 
     async removeAsync(payload, state) {
       dispatch.list.remove(payload);
-      try {
-        await client.delete(`/todos/${payload.id}`);
-      } catch(e) {
-        alert(`couldn't remove task`);
-        dispatch.list.addSaved(payload);
+
+      if(payload.id) {
+        try {
+          await client.delete(`/todos/${payload.id}`);
+        } catch(e) {
+          alert(`couldn't remove task`);
+          dispatch.list.addSaved(payload);
+        }
       }
     }
   })
