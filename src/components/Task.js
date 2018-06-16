@@ -13,18 +13,17 @@ class Task extends Component {
     this.timer = null;
 
     this.handleChange = this.handleChange.bind(this);
-    // this.handleRemove = this.handleRemove.bind(this);
   }
 
   handleChange(e) {
     const text = e.target.value;
     this.setState({ text });
 
-    const { task: { id }, updateAsync } = this.props;
+    const { task, updateAsync } = this.props;
 
     clearTimeout(this.timer);
     this.timer = setTimeout(
-      () => updateAsync({ id, text }),
+      () => updateAsync({ ...task, id: task.id, text }),
     300);
   }
 

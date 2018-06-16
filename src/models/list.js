@@ -45,17 +45,11 @@ export default {
     },
 
     update(state, payload) {
+      const id = payload.id ? payload.id : payload.localID;
       return {
         ...state,
-        tasks: {
-          ...state.tasks,
-          [payload.id]: payload
-        }
+        tasks: { ...state.tasks, [id]: payload }
       }
-    },
-
-    isLoading(state) {
-      return { ...state, loading: true };
     }
   },
 
@@ -73,8 +67,11 @@ export default {
     },
 
     async updateAsync(payload, state) {
-      const res = await client.put(`/todos/${payload.id}`, payload);
-      dispatch.list.update({ ...res.data, saved: true });
+      await dispatch.list.update({ ...payload, saved: false });
+      if(payload.id) {
+        const res = await client.put(`/todos/${payload.id}`, payload);
+        await dispatch.list.update({ ...res.data, saved: true });
+      }
     },
 
     async removeAsync(payload, state) {
